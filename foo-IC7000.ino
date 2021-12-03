@@ -128,7 +128,7 @@ void test_data(mem_record_t* buf) {
  * @pram buf - pointer where to put the data to 
  */
 void empty_data(mem_record_t* buf) {
-#if 0
+#if 01
   memset((byte*)buf, 0xFF, sizeof(mem_record_t));
   memset((byte*)buf->name, ' ', 9 /*sizeof(mem_record_t.name)*/);
 #else
@@ -422,30 +422,57 @@ int civ_parse_command(IcomCIV::civ_record_t* r) {
       print_ch_info(&CONSOLE_SERIAL, &a_chan);
 
       CONSOLE_SERIAL.print(F("write to mn= ")); CONSOLE_SERIAL.println(mn);  
-      if (mn<N_CHANS) {
+      if ((bnk<N_BANKS) && (mn<N_CHANS)) {
         //dump(&CONSOLE_SERIAL, (byte*)&a_chan, sizeof(mem_record_t));
         write_chan_mem(&a_chan, bnk, mn);
 
       } else {
         ; // silently ignore      
       }
+      // ToDo: return error message when out of range 
       civ_ci.send_ack(&CIV_SERIAL, r->adr_d /*addr_from*/, r->adr_s /*addr_to*/);
       res = 0;
     } else {
       // read
 
-      if (true || (mn<N_CHANS)) {
+      if ((bnk<N_BANKS) && (mn<N_CHANS)) {
         read_chan_mem(&a_chan, bnk, mn);
       } else {
         // fill with empty data
         empty_data(&a_chan);
         //test_data((byte*) &a_chan);
       }
-      
-      memcpy(&r->buf[5] /*dst*/, &a_chan /*src*/, sizeof(mem_record_t));
-      r->buf[5+sizeof(a_chan)] = CIV_B_END;
-      civ_ci.send(&CIV_SERIAL, r->adr_d /*addr_from*/, r->adr_s /*addr_to*/, r->buf /**buf*/, CIV_BUFFER_SIZE /*len*/);
-      res = 0;
+
+      if (a_chan.sel != 0xFF) {
+        // our not empty
+        // return memory content message
+        memcpy(&r->buf[5] /*dst*/, &a_chan /*src*/, sizeof(mem_record_t));
+        r->buf[5+sizeof(a_chan)] = CIV_B_END;
+        civ_ci.send(&CIV_SERIAL, r->adr_d /*addr_from*/, r->adr_s /*addr_to*/, r->buf /**buf*/, CIV_BUFFER_SIZE /*len*/);
+        res = 0;
+      } else {
+        // return empty memory message
+        /*
+         * empty/blank must return different message (see icom-civ.pdf section 5-3) 
+         * 
+         * @code:text 
+         * FE FE E0 70 1A 00   01 00 11 FF FD
+         *       ^  ^  ^  ^    ^  ^     ^
+         *       !  !  !  !    !  !     ! blank indicator
+         *       !  !  !  !    !  ! mn 0011    
+         *       !  !  !  !    ! bnk (1=A)
+         *       !  !  !  ! sub             
+         *       !  !  ! cmd                     
+         *       !  ! src 70= radio
+         *       ! dst E0=control        
+         * @end_code                                   
+         */
+        // the cmd, sub, bnk and mn data is still present 
+        r->buf[5] = 0xFF; // CIV_B_EMPTY;
+        r->buf[6] = CIV_B_END;
+        civ_ci.send(&CIV_SERIAL, r->adr_d /*addr_from*/, r->adr_s /*addr_to*/, r->buf /**buf*/, CIV_BUFFER_SIZE /*len*/);
+        res = 0;
+      }
     }
   }
   return res;

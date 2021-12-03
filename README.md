@@ -55,3 +55,8 @@ What comes to mind:
 * draw schematic diagram (fritzing?)
 * think on porting to beefy hardware (ESP32)
 
+## version history
+*  20211203 - initial GitHub commit
+*  20211204 - fixed #1 - misconception in response to access on empty/blank memory 
+    + radio should respond with 'seperate' style telegram (see icom-civ manual; section 5-3)
+

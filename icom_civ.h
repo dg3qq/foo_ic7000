@@ -17,6 +17,7 @@
  * This code has been built with the review of various sources:
  * - Icom IC7000 manual
  * - df4or.de http://www.plicht.de/ekki/civ/civ-p3.html
+ * - Icom Communication Interface -V (icom-civ.pdf)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,8 +50,10 @@
 // OK MESSAGE TO CONTROLLER // FE FE 70 E0 FB FD
 #define CIV_B_ACK 0xFB
 //NG MESSAGE TO CONTROLLER // FE FE 70 E0 FA FD
-#define CIV_B_NAK 0xFA  
-//#define CIV_B_ 0x
+#define CIV_B_NAK 0xFA
+/* memor blank code (see icom-civ.pdf; section 5-3) 
+*/   
+#define CIV_B_BLANK 0xFF
 //#define CIV_B_ 0x
 
 /*
