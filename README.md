@@ -41,7 +41,7 @@ The wiring is streigt foward;
 The ARDUINO micro has not enough memory (RAM/EEPROM) to provide for all five banks of 100 channel each a real 
 IC7000 radio would have. To accomadate for that just two banks with only ten channals each are implemented. 
 Not implemented channal memories will just return 'empty' on read request and silently ignore when written to.
-    
+         
 ## ToDo
 
 Consider this to be still work in progress. There are still some soar edges. 
@@ -59,4 +59,9 @@ What comes to mind:
 *  20211203 - initial GitHub commit
 *  20211204 - fixed #1 - misconception in response to access on empty/blank memory 
     + radio should respond with 'seperate' style telegram (see icom-civ manual; section 5-3)
+
+## About links/references to 3-rd party documents or websites
++  I reject __any__ resopnsibility about what other sites will do.
+    + _the internet_ works https://en.wikipedia.org/wiki/Tim_Berners-Lee
+
 
